@@ -1,10 +1,10 @@
 'use strict';
 const path = require('path');
-const convert = require('js2xmlparser');
+const convert = require('js2xmlparser').parse;
 const JSON_Adapter = require(path.join(__dirname, './json_content'));
 
 const _RENDER = function (data, options) {
-	let skip_conversion = (typeof options.xml_root === 'boolean') ? options.xml_root : this.xml_root;
+	let skip_conversion = (typeof options.skip_conversion === 'boolean') ? options.skip_conversion : this.skip_conversion;
 	if (skip_conversion) return data;
 	let xml_root = options.xml_root || this.xml_root;
 	if (typeof xml_root !== 'string') throw new TypeError('xml_root must be a string, please provide options.xml_root or set this.xml_root');
@@ -14,13 +14,13 @@ const _RENDER = function (data, options) {
 
 const XML_ADAPTER = class XML_Adapter extends JSON_Adapter {
 	constructor (options = {}) {
-		options.formatRender = _RENDER.bind(this);
 		super(options);
 		this.skip_conversion = options.skip_conversion;
 		this.xml_root = options.xml_root;
 		this.xml_configuration = options.xml_configuration;
 	}
 	render (data, options = {}, cb = false) {
+		options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
 		return super.render(data, options, cb);
 	}
 	error (data, options = {}, cb = false) {

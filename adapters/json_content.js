@@ -2,7 +2,7 @@
 const Promisie = require('promisie');
 
 const _RENDER = function (data, options) {
-	if (typeof this.formatResponse === 'function' || typeof options.formatResponse === 'function') return (typeof options.formatRender === 'function') ? options.formatRender(data, options) : this.formatRender(data, options);
+	if (typeof this.formatRender === 'function' || typeof options.formatRender === 'function') return (typeof options.formatRender === 'function') ? options.formatRender(data, options) : this.formatRender(data, options);
 	else {
 		return {
 			result: 'success',
