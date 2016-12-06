@@ -46,7 +46,7 @@ const _ERROR = function (data, options) {
 const JSON_ADAPTER = class JSON_Adapter {
 	/**
 	 * @constructor
-	 * @param  {Object} options Configurable options for the adapter
+	 * @param  {Object} [options={}] Configurable options for the adapter
 	 * @param {Function} options.formatRender Overwrites default formatting behavior for json responses
 	 * @param {Function} options.formatError Overwrites default formatting behavior for errors
 	 */

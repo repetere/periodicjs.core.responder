@@ -21,7 +21,7 @@ const CONTENT_ADAPTER_INTERFACE = class Adapter_Interface {
 	 * @return {Object}         Returns an instantiated adapter class
 	 */
 	create (options = {}) {
-		let Adapter = (typeof options.adapter === 'string') ? ADPATERS[options.adapter] : options.adapter;
+		let Adapter = (typeof options.adapter === 'string') ? ADAPTERS[options.adapter] : options.adapter;
 		if (!Adapter) throw new Error('Could not find a corresponding adapter - for custom adapters pass the constructor as the "adapter" options');
 		let adapter = new Adapter(options);
 		let errors = [];

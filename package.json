@@ -17,7 +17,7 @@
     }
   ],
   "dependencies": {
-    "ejs": "^2.5.3",
+    "ejs": "~2.5.3",
     "js2xmlparser": "~2.0.2"
   },
   "description": "Customizable CMS platform",
@@ -35,7 +35,7 @@
     "mocha": "~2.2.5",
     "moment": "~2.13.0",
     "mongoose": "~4.4.14",
-    "promisie": "~1.5.1"
+    "promisie": "~1.5.2"
   },
   "directories": {},
   "dist": {
