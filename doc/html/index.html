@@ -42,6 +42,140 @@
 
 
 
+    <section>
+        <article><h1>periodicjs.core.data</h1><p><a href="https://travis-ci.org/typesettin/periodicjs.core.responder"><img src="https://travis-ci.org/typesettin/periodicjs.core.data.svg?branch=master" alt="Build Status"></a> <a href="http://badge.fury.io/js/periodicjs.core.responder"><img src="https://badge.fury.io/js/periodicjs.core.responder.svg" alt="NPM version"></a> <a href="https://coveralls.io/github/typesettin/periodicjs.core.responder?branch=master"><img src="https://coveralls.io/repos/github/typesettin/periodicjs.core.responder/badge.svg?branch=master" alt="Coverage Status"></a>  <a href="https://gitter.im/typesettin/periodicjs.core.responder?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/typesettin/periodicjs.core.responder.svg" alt="Join the chat at https://gitter.im/typesettin/periodicjs.core.data"></a></p>
+<h3>Description</h3><p>Core responder is a component of periodicjs.core.controller that provides adapters for different formatting responses across different content types. Each adapter may have options specific to the content type, but after being constructed the same methods are exposed. Depending on content type adapters do everything from wrapping JSON data in a standard way to rendering HTML from templates.</p>
+<h3><a href="https://github.com/typesettin/periodicjs.core.responder/blob/master/doc/api.md">Full Documentation</a></h3><h3>Usage (basic)</h3><pre class="prettyprint source lang-javascript"><code>const AdapterInterface = require('periodicjs.core.responder');
+var adapter = AdapterInterface.create({ adapter: 'json' });
+//Basic usage (JSON)
+//With no callback param returns a Promise
+adapter.render({ foo: 'bar' })
+    .then(result => {
+        /*
+          {
+              &quot;result&quot;: &quot;success&quot;,
+              &quot;status&quot;: 200,
+              &quot;data&quot;: {
+                  &quot;foo&quot;: &quot;bar&quot;
+              }
+          }
+        */
+    });
+//With a callback param
+adapter.render({ foo: 'bar' }, (err, result) => {
+    /*
+      {
+          &quot;result&quot;: &quot;success&quot;,
+          &quot;status&quot;: 200,
+          &quot;data&quot;: {
+              &quot;foo&quot;: &quot;bar&quot;
+          }
+      }
+    */
+});
+//Second param can also be configurable options sync: true will handle operation synchronously
+let result = adapter.render({ foo: 'bar' }, { sync: true });
+/*
+  {
+      &quot;result&quot;: &quot;success&quot;,
+      &quot;status&quot;: 200,
+      &quot;data&quot;: {
+          &quot;foo&quot;: &quot;bar&quot;
+      }
+  }
+*/
+//Formatting can also be customized
+let result = adapter.render({ foo: 'bar' }, {
+    formatRender: function (data, options) {
+        return {
+            custom: 'field',
+            data
+        };
+    }
+});
+/*
+  {
+    &quot;custom&quot;: &quot;field&quot;,
+    &quot;data&quot;: {
+        &quot;foo&quot;: &quot;bar&quot;
+    }
+  }
+*/
+//Basic usage (XML)
+adapter = AdapterInterface.create({ adapter: 'xml', xml_root: 'example' });
+adapter.render({ foo: 'bar' })
+    .then(result => {
+        /*
+         &lt;?xml version=&quot;1.0&quot;>
+         &lt;example>
+            &lt;foo>bar&lt;/foo>
+         &lt;/example>
+        */
+    });
+//configuration for XML rendering can also be passed
+adapter.render({ foo: 'bar' }, {
+    declaration: { encoding: 'UTF-8' }
+}, (err, result) => {
+    /*
+     &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF=8&quot;>
+     &lt;example>
+        &lt;foo>bar&lt;/foo>
+     &lt;/example>
+    */
+});
+//Basic usage (HTML)
+//Since template rendering is inherently async the sync option is ignored
+adapter = AdapterInterface.create({ adapter: 'html', viewname: 'user.ejs' });
+//By default HTML adapter renders EJS templates
+adapter.render({ user: 'Jim' })
+    .then(result => {
+        //Hello &lt;%- user %>! => Hello Jim!
+    });
+//Custom template engines can also be used as long as they expose a .render method
+adapter = AdapterInterface.create({ adapter: 'html', viewname: 'user.pug', engine: require('pug') });
+adapter.render({ user: 'Jim' })
+    .then(result => {
+        //Hello ${user}! => Hello Jim!
+    });</code></pre><h3>Usage (HTML Adapter Advanced)</h3><pre class="prettyprint source lang-javascript"><code>const AdapterInterface = require('periodicjs.core.responder');
+const mustache = require('mustache');
+const path = require('path');
+//Because the adapter uses the .render method of the template engine you can overwite this .render method to further customize behavior
+var render = mustache.render.bind(mustache);
+mustache.render = function (template, data, options) {
+    mustache.parse(template);
+    return render(template, data, options);
+};
+const adapter = AdapterInteraface.create({ adapter: 'html', engine: require('mustache'), viewname: 'user.mustache' });
+//You can customize which directories .render will search for the template by passing .dirname. This also optimizes this .render because custom directories and searched ahead of the theme/extension directories
+adapter.render({ user: 'Jim' }, { dirname: '/some/path/to/dir' })
+    .then(result => {
+        //Hello {{ user }}! => Hello Jim!
+    });</code></pre><h3>Usage (with custom adapter)</h3><pre class="prettyprint source lang-javascript"><code>const AdapterInterface = require('periodicjs.core.responder');
+const template = function (data) {
+    return `Hello ${ data }!`;
+};
+const CustomAdapter = class {
+    constructor (options) {
+        ...
+    },
+    render (data, options) {
+        return template(data);
+    },
+    error (err, options) {
+        return `There was an error: ${ err.message } :(`;
+    }
+};
+var adapter = AdapterInterface.create({ adapter: CustomAdapter });
+adapter.render('Jim'); //Hello Jim!</code></pre><h3>Development</h3><p><em>Make sure you have grunt installed</em></p>
+<pre class="prettyprint source"><code>$ npm install -g grunt-cli jsdoc-to-markdown</code></pre><p>For generating documentation</p>
+<pre class="prettyprint source"><code>$ grunt doc
+$ jsdoc2md adapters/**/*.js index.js > doc/api.md</code></pre><h3>Notes</h3><ul>
+<li>Check out <a href="https://github.com/typesettin/periodicjs">https://github.com/typesettin/periodicjs</a> for the full Periodic Documentation</li>
+</ul>
+<h3>Testing</h3><pre class="prettyprint source lang-sh"><code>$ npm i
+$ grunt test</code></pre><h3>Contributing</h3><h2>License</h2><p>MIT</p></article>
+    </section>
+
 
 
 
@@ -56,7 +190,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 07 2016 12:17:05 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Wed Dec 07 2016 16:24:52 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>
