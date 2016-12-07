@@ -49,7 +49,7 @@ const _RENDER = function (data, options) {
 	  if (typeof themename == 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../content/themes', themename, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  return findValidViewFromPaths(viewname, dirs)
-	  	.then(filePath => Promisie.all([fs.readFileAsync(filePath, 'utf8'), filePath]))
+	  	.then(filePath => Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath))
 	  	.spread((filestr, filename) => {
 	  		filestr = filestr.toString();
 	  		return Promise.resolve(this.engine.render(filestr, data, Object.assign({ filename }, options.engine_configuration || this.engine_configuration)));

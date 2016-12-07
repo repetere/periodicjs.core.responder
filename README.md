@@ -114,7 +114,7 @@ mustache.render = function (template, data, options) {
     return render(template, data, options);
 };
 const adapter = AdapterInteraface.create({ adapter: 'html', engine: require('mustache'), viewname: 'user.mustache' });
-//You can customize which directories .render will search for the template by passing .dirname. This also optimizes this .render because custom directories and searched ahead of the theme/extension directories
+//You can customize which directories .render will search for the template by passing .dirname. This also optimizes .render because custom directories are searched ahead of the theme/extension directories
 adapter.render({ user: 'Jim' }, { dirname: '/some/path/to/dir' })
     .then(result => {
         //Hello {{ user }}! => Hello Jim!
