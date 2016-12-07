@@ -30,32 +30,33 @@ var findValidViewFromPaths = function (_default, dirs = []) {
  * @param {string} [options.viewname=this.viewname] Specifies the filename of the template
  * @param {string} [options.extname=this.extname] Specifies a periodicjs extension folder that should be checked when looking for a matching template
  * @param {string} [options.fileext=this.fileext] Specifies the extension name of the template file
- * @param {string|string[]} [options.filepaths] Optional custom file paths to bechecked when looking for matching template
+ * @param {string|string[]} [options.dirname] Optional custom directories to be checked for template
  * @param {Object} [options.engine_configuration=this.engine_configuration] Custom configuration object for whichever templating engine being used see EJS documentation for details on options for EJS
  * @param  {Function} cb      Callback function
  */
-const _RENDER = function (data, options, cb) {
+const _RENDER = function (data, options) {
 	try {
 		let { themename, viewname, extname, fileext } = ['themename','viewname','extname','fileext'].reduce((result, key) => {
 	    result[key] = options[key] || this[key];
 	    return result;
 	  }, {});
 	  if (typeof viewname !== 'string') throw new TypeError('viewname must be specified in order to render template');
-	  let dirs;
-	  if (options.filepaths) dirs = (Array.isArray(options.filepaths)) ? options.filepaths : [options.filepaths];
+	  let dirs = [];
+	  if (options.dirname) {
+	  	if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, viewname)));
+	  	else dirs.push(path.join(options.dirname, viewname));
+	  }
 	  if (typeof themename == 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../content/themes', themename, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
-	  findValidViewFromPaths(viewname, dirs)
+	  return findValidViewFromPaths(viewname, dirs)
 	  	.then(filePath => Promisie.all([fs.readFileAsync(filePath, 'utf8'), filePath]))
 	  	.spread((filestr, filename) => {
 	  		filestr = filestr.toString();
 	  		return Promise.resolve(this.engine.render(filestr, data, Object.assign({ filename }, options.engine_configuration || this.engine_configuration)));
-	  	})
-	  	.then(cb.bind(null, null))
-	  	.catch(cb);
+	  	});
 	}
 	catch (e) {
-		cb(e);
+		return Promise.reject(e);
 	}
 };
 
@@ -66,16 +67,16 @@ const _RENDER = function (data, options, cb) {
  * @param {string} [options.viewname="home/error404"] Overrideable view name for the error template
  * @param  {Function} cb      Callback function
  */
-const _ERROR = function (err, options, cb) {
+const _ERROR = function (err, options) {
 	try {
 		options.viewname = options.viewname || 'home/error404';
-		_RENDER.call(this, {
+		return _RENDER.call(this, {
 			pagedata: { title: 'Not Found', error: (err instanceof Error || err.message) ? err.message : err },
 			url: options.viewname
-		}, options, cb);
+		}, options);
 	}
 	catch (e) {
-		cb(e);
+		return Promise.reject(e);
 	}
 };
 
@@ -114,6 +115,10 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 	 * @return {Object}          Returns a Promise if cb arguement is not provided
 	 */
 	render (data, options = {}, cb = false) {
+		if (typeof options === 'function') {
+			cb = options;
+			options = {};
+		}
 		options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
 		options.sync = true;
 		return super.render(data, options)
@@ -134,9 +139,13 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 	 * @return {Object}          Returns a Promise if cb arguement is not provided
 	 */
 	error (err, options = {}, cb = false) {
+		if (typeof options === 'function') {
+			cb = options;
+			options = {};
+		}
 		options.formatError = (typeof options.formatError === 'function') ? options.formatError : _ERROR.bind(this);
 		options.sync = true;
-		return super.error(data, options)
+		return super.error(err, options)
 			.then(result => {
 				if (typeof cb === 'function') cb(null, result);
 				else return result;

@@ -40,6 +40,7 @@ const _ERROR = function (err, options) {
 	if (skip_conversion) return err;
 	let xml_root = options.xml_root || this.xml_root;
 	if (typeof xml_root !== 'string') throw new TypeError('xml_root must be a string, please provide options.xml_root or set this.xml_root');
+	let xml_configuration = options.xml_configuration || this.xml_configuration;
 	let xml_data = {
 		result: 'error',
 		status: 500,
@@ -47,7 +48,7 @@ const _ERROR = function (err, options) {
 			error: (err instanceof Error || typeof err.message === 'string') ? err.message : err
 		}
 	};
-	return convert(xml_root, xml_data, (options.xml_configuration) ? options.xml_configuration : undefined);
+	return convert(xml_root, xml_data, (xml_configuration && typeof xml_configuration === 'object') ? xml_configuration : undefined);
 };
 
 /**
@@ -78,6 +79,10 @@ const XML_ADAPTER = class XML_Adapter extends JSON_Adapter {
 	 * @return {*}          Returns the formatted XML string if options.sync is true or a Promise if cb arugement is not passed
 	 */
 	render (data, options = {}, cb = false) {
+		if (typeof options === 'function') {
+			cb = options;
+			options = {};
+		}
 		options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
 		return super.render(data, options, cb);
 	}
@@ -90,6 +95,10 @@ const XML_ADAPTER = class XML_Adapter extends JSON_Adapter {
 	 * @return {*}          Returns the formatted XML string if options.sync is true or a Promise if cb arugement is not passed
 	 */
 	error (err = {}, options = {}, cb = false) {
+		if (typeof options === 'function') {
+			cb = options;
+			options = {};
+		}
 		options.formatError = (typeof options.formatError === 'function') ? options.formatError : _ERROR.bind(this);
 		return super.error(err, options, cb);
 	}

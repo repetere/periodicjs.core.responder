@@ -64,6 +64,10 @@ const JSON_ADAPTER = class JSON_Adapter {
 	 */
 	render (data, options = {}, cb = false) {
 		try {
+			if (typeof options === 'function') {
+				cb = options;
+				options = {};
+			}
 			let rendered = _RENDER.call(this, data, options);
 			if (options.sync !== true) {
 				if (typeof cb === 'function') cb(null, rendered);
@@ -89,6 +93,10 @@ const JSON_ADAPTER = class JSON_Adapter {
 	 */
 	error (err, options = {}, cb = false) {
 		try {
+			if (typeof options === 'function') {
+				cb = options;
+				options = {};
+			}
 			let errored = _ERROR.call(this, err, options);
 			if (options.sync !== true) {
 				if (typeof cb === 'function') cb(null, errored);
