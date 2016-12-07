@@ -144,12 +144,12 @@ adapter.render('Jim'); //Hello Jim!
 
 ### Development
 *Make sure you have grunt installed*
-```
+```sh
 $ npm install -g grunt-cli jsdoc-to-markdown
 ```
 
 For generating documentation
-```
+```sh
 $ grunt doc
 $ jsdoc2md adapters/**/*.js index.js > doc/api.md
 ```
