@@ -32,6 +32,10 @@ describe('Content Adapter Interface', function () {
 			let adapter = AdapterInterface.create({ adapter: 'json' });
 			expect(adapter instanceof JSONAdapter).to.be.true;
 		});
+		it('Should return a constructed adapter given a valid adapter name when only .responder is defined', () => {
+			let adapter = AdapterInterface.create({ responder: 'json' });
+			expect(adapter instanceof JSONAdapter).to.be.true;
+		});
 	});
 	describe('generating an adapter from a provided constructor', function () {
 		it('Should throw an error if custom adapter class is missing required methods', done => {
