@@ -264,6 +264,7 @@ Renders an HTML string from provided data
 | [options.themename] | <code>string</code> | <code>&quot;this.themename&quot;</code> | Specifies a periodic theme folder that will be checked when looking for a matching template |
 | [options.viewname] | <code>string</code> | <code>&quot;this.viewname&quot;</code> | Specifies the filename of the template |
 | [options.extname] | <code>string</code> | <code>&quot;this.extname&quot;</code> | Specifies a periodicjs extension folder that should be checked when looking for a matching template |
+| [options.resolve_filepath] | <code>Boolean</code> |  | If true a valid file path will be returned and rendering of the template file will be skipped |
 | [options.fileext] | <code>string</code> | <code>&quot;this.fileext&quot;</code> | Specifies the extension name of the template file |
 | [options.dirname] | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> |  | Optional custom directories to be checked for template |
 | [options.engine_configuration] | <code>Object</code> | <code>this.engine_configuration</code> | Custom configuration object for whichever templating engine being used see EJS documentation for details on options for EJS |

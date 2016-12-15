@@ -29,6 +29,7 @@ var findValidViewFromPaths = function (_default, dirs = []) {
  * @param {string} [options.themename=this.themename] Specifies a periodic theme folder that will be checked when looking for a matching template
  * @param {string} [options.viewname=this.viewname] Specifies the filename of the template
  * @param {string} [options.extname=this.extname] Specifies a periodicjs extension folder that should be checked when looking for a matching template
+ * @param {Boolean} [options.resolve_filepath] If true a valid file path will be returned and rendering of the template file will be skipped
  * @param {string} [options.fileext=this.fileext] Specifies the extension name of the template file
  * @param {string|string[]} [options.dirname] Optional custom directories to be checked for template
  * @param {Object} [options.engine_configuration=this.engine_configuration] Custom configuration object for whichever templating engine being used see EJS documentation for details on options for EJS
@@ -49,6 +50,7 @@ const _RENDER = function (data, options) {
 	  if (typeof themename == 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../content/themes', themename, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  dirs.push(path.join(__dirname, '../../../app/views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
+	  if (options.resolve_filepath === true) return findValidViewFromPaths(viewname, dirs);
 	  return findValidViewFromPaths(viewname, dirs)
 	  	.then(filePath => Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath))
 	  	.spread((filestr, filename) => {
@@ -157,4 +159,4 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 	}
 };
 
-module.exports = HTML_ADAPTER;
+module.exports = { HTML_ADAPTER, findValidViewFromPaths };

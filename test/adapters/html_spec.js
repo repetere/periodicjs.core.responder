@@ -26,6 +26,17 @@ describe('HTML adapter spec', function () {
 					})
 					.catch(done);
 			});
+			it('Should resolve with a valid file path if options.resolve_filepath is true', done => {
+				ejsAdapter.render({}, {
+					dirname: [path.join(__dirname, '../examples'), path.join(__dirname, '../adapters')],
+					resolve_filepath: true
+				})
+					.try(result => {
+						expect(result).to.equal(path.join(__dirname, '../examples', 'example.ejs'));
+						done();
+					})
+					.catch(done);
+			});
 			it('Should render default view if no valid template is found', done => {
 				ejsAdapter.render(templateData, {
 					viewname: path.join(__dirname, '../examples/example.ejs')
