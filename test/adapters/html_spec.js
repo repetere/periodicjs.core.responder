@@ -14,7 +14,7 @@ describe('HTML adapter spec', function () {
 			name: 'OG Bobby Johnson'
 		};
 		describe('using default ejs template engine', function () {
-			let ejsAdapter = AdapterInterface.create({ adapter: 'html', viewname: 'example.ejs' });
+			let ejsAdapter = AdapterInterface.create({ adapter: 'html', viewname: 'example' });
 			it('Should find a view from a set of file paths and render if it is found', done => {
 				ejsAdapter.render(templateData, {
 					dirname: [path.join(__dirname, '../examples'), path.join(__dirname, '../adapters')]
@@ -39,7 +39,7 @@ describe('HTML adapter spec', function () {
 			});
 			it('Should render default view if no valid template is found', done => {
 				ejsAdapter.render(templateData, {
-					viewname: path.join(__dirname, '../examples/example.ejs')
+					viewname: path.join(__dirname, '../examples/example')
 				})
 					.try(result => {
 						expect(result).to.be.a('string');
@@ -56,7 +56,7 @@ describe('HTML adapter spec', function () {
 			});
 		});
 		describe('using custom template engine that exposes a .render function', function () {
-			let pugAdapter = AdapterInterface.create({ adapter: 'html', viewname: 'example.pug', engine: pug });
+			let pugAdapter = AdapterInterface.create({ adapter: 'html', viewname: 'example', engine: pug, fileext: '.pug' });
 			it('Should find a view from a set of file paths and render if it is found', done => {
 				pugAdapter.render(templateData, {
 					dirname: [path.join(__dirname, '../examples'), path.join(__dirname, '../adapters')]
@@ -70,7 +70,8 @@ describe('HTML adapter spec', function () {
 			});
 			it('Should render default view if no valid template is found', done => {
 				pugAdapter.render(templateData, {
-					viewname: path.join(__dirname, '../examples/example.pug')
+					viewname: path.join(__dirname, '../examples/example'),
+					fileext: '.pug'
 				})
 					.try(result => {
 						expect(result).to.be.a('string');
@@ -93,7 +94,7 @@ describe('HTML adapter spec', function () {
 				return render(template, data);
 			};
 			mustache.render = mustacheRender;
-			let mustacheAdapter = AdapterInterface.create({ adapter: 'html', viewname: 'example.mustache', engine: mustache });
+			let mustacheAdapter = AdapterInterface.create({ adapter: 'html', viewname: 'example', engine: mustache, fileext: '.mustache' });
 			it('Should find a view from a set of file paths and render if it is found', done => {
 				mustacheAdapter.render(templateData, {
 					dirname: [path.join(__dirname, '../examples'), path.join(__dirname, '../adapters')]
@@ -107,7 +108,8 @@ describe('HTML adapter spec', function () {
 			});
 			it('Should render default view if no valid template is found', done => {
 				mustacheAdapter.render(templateData, {
-					viewname: path.join(__dirname, '../examples/example.mustache')
+					viewname: path.join(__dirname, '../examples/example'),
+					fileext: '.mustache'
 				})
 					.try(result => {
 						expect(result).to.be.a('string');
@@ -128,7 +130,7 @@ describe('HTML adapter spec', function () {
 		let error = new Error('Some Random Error');
 		let htmlAdapter = AdapterInterface.create({ adapter: 'html' });
 		it('Should be able to render an error template', done => {
-			htmlAdapter.error(error, { viewname: 'error.ejs', dirname: path.join(__dirname, '../examples') })
+			htmlAdapter.error(error, { viewname: 'error', dirname: path.join(__dirname, '../examples') })
 				.try(result => {
 					expect(result).to.be.a('string');
 					expect(/Some Random Error/m.test(result)).to.be.true;

@@ -44,14 +44,14 @@ const _RENDER = function (data, options) {
 	  if (typeof viewname !== 'string') throw new TypeError('viewname must be specified in order to render template');
 	  let dirs = [];
 	  if (options.dirname) {
-	  	if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, viewname)));
-	  	else dirs.push(path.join(options.dirname, viewname));
+	  	if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`)));
+	  	else dirs.push(path.join(options.dirname, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  }
 	  if (typeof themename == 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../content/themes', themename, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  dirs.push(path.join(__dirname, '../../../app/views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (options.resolve_filepath === true) return findValidViewFromPaths(viewname, dirs);
-	  return findValidViewFromPaths(viewname, dirs)
+	  return findValidViewFromPaths(`${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`, dirs)
 	  	.then(filePath => Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath))
 	  	.spread((filestr, filename) => {
 	  		filestr = filestr.toString();
