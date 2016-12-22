@@ -58,6 +58,9 @@ const JSON_ADAPTER = class JSON_Adapter {
 	 * Creates a formatted response
 	 * @param  {*}  data    Any data that should be sent with the success response
 	 * @param  {Object}  [options={}] Configurable options for success response formatting see _RENDER for more details
+	 * @param {Object} [options.req] Express request object. If options.req and options.res are defined the express .render method will be used to render template
+	 * @param {Object} [options.res] Express response object. If options.res and options.req are defined the express .render method will be used to render template
+	 * @param {Boolean} [options.skip_response] If true function will resolve with the rendered template instead of sending a response
 	 * @param {Boolean} options.sync If true execution of render will be handled synchronously
 	 * @param  {Function} [cb=false]      An optional callback function. If this argument is not a function it will be ignored
 	 * @return {*}          Returns the formatted json object if options.sync is true or a Promise if cb arugement is not passed
@@ -69,6 +72,10 @@ const JSON_ADAPTER = class JSON_Adapter {
 				options = {};
 			}
 			let rendered = _RENDER.call(this, data, options);
+			if (options.req && options.res && !options.skip_response) {
+				if (options.req.query && options.req.query.callback) options.res.status(200).jsonp(rendered);
+				else options.res.status(200).send(rendered);
+			}
 			if (options.sync !== true) {
 				if (typeof cb === 'function') cb(null, rendered);
 				else return Promisie.resolve(rendered);
@@ -76,11 +83,7 @@ const JSON_ADAPTER = class JSON_Adapter {
 			else return rendered;
 		}
 		catch (e) {
-			if (options.sync !== true) {
-				if (typeof cb === 'function') cb(e);
-				else return Promise.reject(e);
-			}
-			else throw e;
+			return this.error(e, options, cb);
 		}
 	}
 	/**
@@ -88,6 +91,9 @@ const JSON_ADAPTER = class JSON_Adapter {
 	 * @param  {*}  err     Any data to be sent as part of error response
 	 * @param  {Object}  options Configurable options for error response formatting see _ERROR for more details
 	 * @param {Boolean} options.sync If ture execution of error will be handled synchronously
+	 * @param {Object} [options.req] Express request object. If options.req and options.res are defined the express .render method will be used to render template
+	 * @param {Object} [options.res] Express response object. If options.res and options.req are defined the express .render method will be used to render template
+	 * @param {Boolean} [options.skip_response] If true function will resolve with the rendered template instead of sending a response
 	 * @param  {Function} [cb=false]      An optional callback function. If this argument is not a function it will be ignored
  	 * @return {*}          Returns the formatted json object if options.sync is true or a Promise if cb arugement is not passed
 	 */
@@ -98,6 +104,10 @@ const JSON_ADAPTER = class JSON_Adapter {
 				options = {};
 			}
 			let errored = _ERROR.call(this, err, options);
+			if (options.req && options.res && !options.skip_response) {
+				if (options.req.query && options.req.query.callback) options.res.status(500).jsonp(errored);
+				else options.res.status(500).send(errored);
+			}
 			if (options.sync !== true) {
 				if (typeof cb === 'function') cb(null, errored);
 				else return Promisie.resolve(errored);
@@ -107,7 +117,7 @@ const JSON_ADAPTER = class JSON_Adapter {
 		catch (e) {
 			if (options.sync !== true) {
 				if (typeof cb === 'function') cb(e);
-				else return Promise.reject(e);
+				else return Promisie.reject(e);
 			}
 			else throw e;
 		}

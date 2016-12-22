@@ -76,6 +76,9 @@ const XML_ADAPTER = class XML_Adapter extends JSON_Adapter {
 	 * @param  {Object}  [options={}] Configurable options for the XML success response formatting see _RENDER for more details
 	 * @param {Function} [options.formatRender=_RENDER] Custom formatting function for XML rendering. It is recommended that the default value for this property is used and only custom options for the XML rendering are passed
 	 * @param  {Function} [cb=false]      Optional callback function. If argument is not a function it will be ignored
+	 * @param {Object} [options.req] Express request object. If options.req and options.res are defined the express .render method will be used to render template
+	 * @param {Object} [options.res] Express response object. If options.res and options.req are defined the express .render method will be used to render template
+	 * @param {Boolean} [options.skip_response] If true function will resolve with the rendered template instead of sending a response
 	 * @return {*}          Returns the formatted XML string if options.sync is true or a Promise if cb arugement is not passed
 	 */
 	render (data, options = {}, cb = false) {
@@ -91,6 +94,9 @@ const XML_ADAPTER = class XML_Adapter extends JSON_Adapter {
 	 * @param  {*}  [err={}]    Any data that should be sent with the error response
 	 * @param  {Object}  [options={}] Configurable options for the XML error response formatting see _ERROR for more details
 	 * @param {Function} [options.formatError=_ERROR] Custom formatting function for XML rendering. It is recommended that the default value for this property is used and only custom options for the XML rendering are passed
+	 * @param {Object} [options.req] Express request object. If options.req and options.res are defined the express .render method will be used to render template
+	 * @param {Object} [options.res] Express response object. If options.res and options.req are defined the express .render method will be used to render template
+	 * @param {Boolean} [options.skip_response] If true function will resolve with the rendered template instead of sending a response
 	 * @param  {Function} [cb=false]      Optional callback function. If argument is not a function it will be ignored
 	 * @return {*}          Returns the formatted XML string if options.sync is true or a Promise if cb arugement is not passed
 	 */

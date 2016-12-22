@@ -139,6 +139,9 @@ Creates a formatted response
 | --- | --- | --- | --- |
 | data | <code>\*</code> |  | Any data that should be sent with the success response |
 | [options] | <code>Object</code> | <code>{}</code> | Configurable options for success response formatting see _RENDER for more details |
+| [options.req] | <code>Object</code> |  | Express request object. If options.req and options.res are defined the express .render method will be used to render template |
+| [options.res] | <code>Object</code> |  | Express response object. If options.res and options.req are defined the express .render method will be used to render template |
+| [options.skip_response] | <code>Boolean</code> |  | If true function will resolve with the rendered template instead of sending a response |
 | options.sync | <code>Boolean</code> |  | If true execution of render will be handled synchronously |
 | [cb] | <code>function</code> | <code>false</code> | An optional callback function. If this argument is not a function it will be ignored |
 
@@ -155,6 +158,9 @@ Creates a formatted error response
 | err | <code>\*</code> |  | Any data to be sent as part of error response |
 | options | <code>Object</code> |  | Configurable options for error response formatting see _ERROR for more details |
 | options.sync | <code>Boolean</code> |  | If ture execution of error will be handled synchronously |
+| [options.req] | <code>Object</code> |  | Express request object. If options.req and options.res are defined the express .render method will be used to render template |
+| [options.res] | <code>Object</code> |  | Express response object. If options.res and options.req are defined the express .render method will be used to render template |
+| [options.skip_response] | <code>Boolean</code> |  | If true function will resolve with the rendered template instead of sending a response |
 | [cb] | <code>function</code> | <code>false</code> | An optional callback function. If this argument is not a function it will be ignored |
 
 <a name="XML_ADAPTER"></a>
@@ -195,6 +201,9 @@ Creates a formatted XML response
 | [options] | <code>Object</code> | <code>{}</code> | Configurable options for the XML success response formatting see _RENDER for more details |
 | [options.formatRender] | <code>function</code> | <code>_RENDER</code> | Custom formatting function for XML rendering. It is recommended that the default value for this property is used and only custom options for the XML rendering are passed |
 | [cb] | <code>function</code> | <code>false</code> | Optional callback function. If argument is not a function it will be ignored |
+| [options.req] | <code>Object</code> |  | Express request object. If options.req and options.res are defined the express .render method will be used to render template |
+| [options.res] | <code>Object</code> |  | Express response object. If options.res and options.req are defined the express .render method will be used to render template |
+| [options.skip_response] | <code>Boolean</code> |  | If true function will resolve with the rendered template instead of sending a response |
 
 <a name="XML_ADAPTER+error"></a>
 
@@ -209,6 +218,9 @@ Creates a formatted XML error response
 | [err] | <code>\*</code> | <code>{}</code> | Any data that should be sent with the error response |
 | [options] | <code>Object</code> | <code>{}</code> | Configurable options for the XML error response formatting see _ERROR for more details |
 | [options.formatError] | <code>function</code> | <code>_ERROR</code> | Custom formatting function for XML rendering. It is recommended that the default value for this property is used and only custom options for the XML rendering are passed |
+| [options.req] | <code>Object</code> |  | Express request object. If options.req and options.res are defined the express .render method will be used to render template |
+| [options.res] | <code>Object</code> |  | Express response object. If options.res and options.req are defined the express .render method will be used to render template |
+| [options.skip_response] | <code>Boolean</code> |  | If true function will resolve with the rendered template instead of sending a response |
 | [cb] | <code>function</code> | <code>false</code> | Optional callback function. If argument is not a function it will be ignored |
 
 <a name="CONTENT_ADAPTER_INTERFACE"></a>
