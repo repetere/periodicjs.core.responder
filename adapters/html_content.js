@@ -169,7 +169,6 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 	 * @return {Object}          Returns a Promise if cb arguement is not provided
 	 */
 	error (err, options = {}, cb = false) {
-		console.log(this.custom_error_path, err);
 		if (typeof options === 'function') {
 			cb = options;
 			options = {};
