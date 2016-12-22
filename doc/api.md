@@ -65,6 +65,7 @@ HTML response adapter class which renders templates from provided data and templ
 | [options.engine_configuration] | <code>Object</code> |  | Defines a default set of configuration options that are passed to the rendering function |
 | [options.extname] | <code>string</code> |  | Name of a periodicjs extension. Used in finding valid template |
 | [options.themename] | <code>string</code> | <code>&quot;\&quot;periodicjs.theme.default\&quot;&quot;</code> | Name of a periodicjs theme. Used in finding valid template |
+| [options.locals] | <code>Object</code> | <code>{}</code> | Shared local values for rendering. Only used when express rendering is not available. |
 | [options.viewname] | <code>string</code> |  | Defines a default view name that should be used in rendering |
 | [options.fileext] | <code>string</code> | <code>&quot;\&quot;.ejs\&quot;&quot;</code> | Defines the default extension name of the template file |
 
@@ -81,6 +82,9 @@ Renders HTML from provided data and template
 | data | <code>Object</code> |  | Data that is passed to render template |
 | [options] | <code>Object</code> | <code>{}</code> | Configurable options for rendering see _RENDER for full details |
 | [options.formatRender] | <code>function</code> | <code>_RENDER</code> | Custom rendering function. It is not recommended to override the default value of this property and may no longer work properly |
+| [options.req] | <code>Object</code> |  | Express request object. If options.req and options.res are defined the express .render method will be used to render template |
+| [options.res] | <code>Object</code> |  | Express response object. If options.res and options.req are defined the express .render method will be used to render template |
+| [options.skip_response] | <code>Boolean</code> |  | If true function will resolve with the rendered template instead of sending a response |
 | cb | <code>function</code> |  | Optional callback function. If arugment is not passed function will |
 
 <a name="HTML_ADAPTER+error"></a>
@@ -96,6 +100,9 @@ Renders error view from template
 | err | <code>\*</code> |  | Any error data that should be passed to template |
 | [options] | <code>Object</code> | <code>{}</code> | Configurable options for rendering see _ERROR for full details |
 | [options.formatError] | <code>function</code> | <code>_RENDER</code> | Custom rendering function. It is not recommended to override the default value of this property and may no longer work properly |
+| [options.req] | <code>Object</code> |  | Express request object. If options.req and options.res are defined the express .render method will be used to render template |
+| [options.res] | <code>Object</code> |  | Express response object. If options.res and options.req are defined the express .render method will be used to render template |
+| [options.skip_response] | <code>Boolean</code> |  | If true function will resolve with the rendered |
 | cb | <code>function</code> |  | Optional callback function. If arugment is not passed function will |
 
 <a name="JSON_ADAPTER"></a>

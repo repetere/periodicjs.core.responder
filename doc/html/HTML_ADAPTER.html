@@ -330,6 +330,45 @@
 
         <tr>
             
+                <td class="name"><code>locals</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    {}
+                
+                </td>
+            
+
+            <td class="description last"><p>Shared local values for rendering. Only used when express rendering is not available.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>viewname</code></td>
             
 
@@ -447,7 +486,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="adapters_html_content.js.html">adapters/html_content.js</a>, <a href="adapters_html_content.js.html#line91">line 91</a>
+        <a href="adapters_html_content.js.html">adapters/html_content.js</a>, <a href="adapters_html_content.js.html#line93">line 93</a>
     </li></ul></dd>
     
 
@@ -687,6 +726,117 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Express request object. If options.req and options.res are defined the express .render method will be used to render template</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Express response object. If options.res and options.req are defined the express .render method will be used to render template</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>skip_response</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>If true function will resolve with the rendered</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -766,7 +916,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="adapters_html_content.js.html">adapters/html_content.js</a>, <a href="adapters_html_content.js.html#line144">line 144</a>
+        <a href="adapters_html_content.js.html">adapters/html_content.js</a>, <a href="adapters_html_content.js.html#line171">line 171</a>
     </li></ul></dd>
     
 
@@ -999,6 +1149,117 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>req</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Express request object. If options.req and options.res are defined the express .render method will be used to render template</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Express response object. If options.res and options.req are defined the express .render method will be used to render template</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>skip_response</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>If true function will resolve with the rendered template instead of sending a response</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1078,7 +1339,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="adapters_html_content.js.html">adapters/html_content.js</a>, <a href="adapters_html_content.js.html#line120">line 120</a>
+        <a href="adapters_html_content.js.html">adapters/html_content.js</a>, <a href="adapters_html_content.js.html#line128">line 128</a>
     </li></ul></dd>
     
 
@@ -1148,7 +1409,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Dec 15 2016 11:50:37 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Dec 22 2016 12:24:15 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>

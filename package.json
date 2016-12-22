@@ -23,6 +23,7 @@
   "description": "Customizable CMS platform",
   "devDependencies": {
     "chai": "~3.0.0",
+    "chai-spies": "^0.7.1",
     "coveralls": "^2.11.15",
     "fs-extra": "~0.30.0",
     "grunt": "~0.4.5",
@@ -41,7 +42,7 @@
     "mocha-lcov-reporter": "^1.2.0",
     "moment": "~2.13.0",
     "mustache": "^2.3.0",
-    "promisie": "~1.5.2",
+    "promisie": "~1.5.3",
     "pug": "^2.0.0-beta6"
   },
   "directories": {},
@@ -87,6 +88,6 @@
   "scripts": {
     "test": "mocha -R spec --recursive"
   },
-  "version": "0.0.8",
+  "version": "0.1.0",
   "license": "MIT"
 }

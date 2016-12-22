@@ -40,7 +40,7 @@ const JSON_Adapter = require(path.join(__dirname, './json_content'));
  * @return {Object}         Returns a Promise which resolves with a file path or the default value
  */
 var findValidViewFromPaths = function (_default, dirs = []) {
-	if (!dirs.length) return Promise.resolve(_default);
+	if (!dirs.length) return Promisie.resolve(_default);
 	return Promisie.retry(() => {
 		let filePath = dirs.shift();
 		return fs.statAsync(filePath)
@@ -72,22 +72,23 @@ const _RENDER = function (data, options) {
 	  if (typeof viewname !== 'string') throw new TypeError('viewname must be specified in order to render template');
 	  let dirs = [];
 	  if (options.dirname) {
-	  	if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, viewname)));
-	  	else dirs.push(path.join(options.dirname, viewname));
+	  	if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`)));
+	  	else dirs.push(path.join(options.dirname, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  }
 	  if (typeof themename == 'string' &amp;&amp; typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../content/themes', themename, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (typeof extname === 'string' &amp;&amp; typeof fileext === 'string') dirs.push(path.join(__dirname, '../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  dirs.push(path.join(__dirname, '../../../app/views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
 	  if (options.resolve_filepath === true) return findValidViewFromPaths(viewname, dirs);
-	  return findValidViewFromPaths(viewname, dirs)
+	  return findValidViewFromPaths(`${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`, dirs)
 	  	.then(filePath => Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath))
 	  	.spread((filestr, filename) => {
 	  		filestr = filestr.toString();
-	  		return Promise.resolve(this.engine.render(filestr, data, Object.assign({ filename }, options.engine_configuration || this.engine_configuration)));
-	  	});
+	  		return Promisie.resolve(this.engine.render(filestr, data, Object.assign({ filename }, options.engine_configuration || this.engine_configuration)));
+	  	})
+	  	.catch(e => Promisie.reject(e));
 	}
 	catch (e) {
-		return Promise.reject(e);
+		return Promisie.reject(e);
 	}
 };
 
@@ -100,11 +101,12 @@ const _RENDER = function (data, options) {
  */
 const _ERROR = function (err, options) {
 	try {
-		options.viewname = options.viewname || 'home/error404';
-		return _RENDER.call(this, {
+		if (this.custom_error_path) options.viewname = (options.viewname) ? path.join(this.custom_error_path, options.viewname) : path.join(this.custom_error_path, 'home/error404');
+		else options.viewname = options.viewname || 'home/error404';
+		return _RENDER.call(this, Object.assign({ flash_messages: {} }, options.locals || {}, {
 			pagedata: { title: 'Not Found', error: (err instanceof Error || err.message) ? err.message : err },
 			url: options.viewname
-		}, options);
+		}), options);
 	}
 	catch (e) {
 		return Promise.reject(e);
@@ -125,6 +127,7 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 	 * @param {Object} [options.engine_configuration] Defines a default set of configuration options that are passed to the rendering function
 	 * @param {string} [options.extname] Name of a periodicjs extension. Used in finding valid template
 	 * @param {string} [options.themename="periodicjs.theme.default"] Name of a periodicjs theme. Used in finding valid template
+	 * @param {Object} [options.locals={}] Shared local values for rendering. Only used when express rendering is not available.
 	 * @param {string} [options.viewname] Defines a default view name that should be used in rendering
 	 * @param {string} [options.fileext=".ejs"] Defines the default extension name of the template file
 	 */
@@ -136,12 +139,17 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 		this.themename = options.themename || 'periodicjs.theme.default';
 		this.viewname = options.viewname;
 		this.fileext = options.fileext || '.ejs';
+		this.locals = (options.locals &amp;&amp; typeof options.locals === 'object') ? options.locals : {};
+		this.custom_error_path = options.custom_error_path;
 	}
 	/**
 	 * Renders HTML from provided data and template
 	 * @param  {Object}  data    Data that is passed to render template
 	 * @param  {Object}  [options={}] Configurable options for rendering see _RENDER for full details
 	 * @param {Function} [options.formatRender=_RENDER] Custom rendering function. It is not recommended to override the default value of this property and may no longer work properly
+	 * @param {Object} [options.req] Express request object. If options.req and options.res are defined the express .render method will be used to render template
+	 * @param {Object} [options.res] Express response object. If options.res and options.req are defined the express .render method will be used to render template
+	 * @param {Boolean} [options.skip_response] If true function will resolve with the rendered template instead of sending a response
 	 * @param  {Function} cb      Optional callback function. If arugment is not passed function will 
 	 * @return {Object}          Returns a Promise if cb arguement is not provided
 	 */
@@ -150,40 +158,85 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
 			cb = options;
 			options = {};
 		}
-		options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
-		options.sync = true;
-		return super.render(data, options)
-			.then(result => {
-				if (typeof cb === 'function') cb(null, result);
-				else return result;
-			}, e => {
-				if (typeof cb === 'function') cb(e);
-				else return Promise.reject(e);
-			});
+		if (options.req &amp;&amp; options.res) {
+			data.flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+			return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true }))
+				.then(filepath => Promisie.promisify(options.res.render, options.res)(filepath, data))
+				.then(rendered => {
+					if (typeof cb === 'function') cb(null, rendered);
+					else if (options.skip_response &amp;&amp; typeof cb !== 'function') return Promisie.resolve(rendered);
+					else {
+						options.res.status(200).send(rendered);
+						return Promisie.resolve(rendered);
+					}
+				})
+				.catch(err => this.error(err, options, cb));
+		}
+		else {
+			options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
+			options.sync = true;
+			return super.render(Object.assign({ flash_messages: {} }, this.locals, data), options)
+				.then(result => {
+					if (typeof cb === 'function') cb(null, result);
+					else return result;
+				}, e => {
+					if (typeof cb === 'function') cb(e);
+					else return Promisie.reject(e);
+				});
+		}
 	}
 	/**
 	 * Renders error view from template
 	 * @param  {*}  err    Any error data that should be passed to template
 	 * @param  {Object}  [options={}] Configurable options for rendering see _ERROR for full details
 	 * @param {Function} [options.formatError=_RENDER] Custom rendering function. It is not recommended to override the default value of this property and may no longer work properly
+	 * @param {Object} [options.req] Express request object. If options.req and options.res are defined the express .render method will be used to render template
+	 * @param {Object} [options.res] Express response object. If options.res and options.req are defined the express .render method will be used to render template
+	 * @param {Boolean} [options.skip_response] If true function will resolve with the rendered 
 	 * @param  {Function} cb      Optional callback function. If arugment is not passed function will 
 	 * @return {Object}          Returns a Promise if cb arguement is not provided
 	 */
 	error (err, options = {}, cb = false) {
+		console.log(this.custom_error_path, err);
 		if (typeof options === 'function') {
 			cb = options;
 			options = {};
 		}
-		options.formatError = (typeof options.formatError === 'function') ? options.formatError : _ERROR.bind(this);
-		options.sync = true;
-		return super.error(err, options)
-			.then(result => {
-				if (typeof cb === 'function') cb(null, result);
-				else return result;
-			}, e => {
-				if (typeof cb === 'function') cb(e);
-				else return Promise.reject(e);
-			});
+		if (options.req &amp;&amp; options.res) {
+			let flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+			if (options.dirname &amp;&amp; this.custom_error_path) options.dirname = (Array.isArray(options.dirname)) ? options.dirname.concat(this.custom_error_path) : [options.dirname].concat(this.custom_error_path);
+			else if (!options.dirname &amp;&amp; this.custom_error_path) options.dirname = this.custom_error_path;
+			return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true }))
+				.then(filepath => Promisie.promisify(options.res.render, options.res)(filepath, Object.assign({
+						pagedata: { title: 'Not Found', error: (err instanceof Error || err.message) ? err.message : err },
+						url: options.viewname
+					}, { flash_messages, error: err, message: err.message })))
+				.then(rendered => {
+					if (typeof cb === 'function') cb(null, rendered);
+					else if (options.skip_response &amp;&amp; typeof cb !== 'function') return Promisie.resolve(rendered);
+					else {
+						options.res.status(500).send(rendered);
+						return Promisie.resolve(rendered);
+					}
+				})
+				.catch(err => {
+					if (typeof cb === 'function') cb(err);
+					else return Promisie.reject(err);
+				});
+		}
+		else {
+			options.formatError = (typeof options.formatError === 'function') ? options.formatError : _ERROR.bind(this);
+			options.sync = true;
+			options.locals = this.locals;
+			return super.error(err, options)
+				.then(result => {
+					if (typeof cb === 'function') cb(null, result);
+					else return result;
+				}, e => {
+					if (typeof cb === 'function') cb(e);
+					else return Promisie.reject(e);
+				});
+		}
 	}
 };
 
@@ -204,7 +257,7 @@ module.exports = { HTML_ADAPTER, findValidViewFromPaths };
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Dec 15 2016 11:50:37 GMT-0500 (EST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Thu Dec 22 2016 12:24:15 GMT-0500 (EST)
 </footer>
 
 <script> prettyPrint(); </script>
