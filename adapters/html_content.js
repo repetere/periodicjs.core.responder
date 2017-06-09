@@ -56,10 +56,8 @@ const _RENDER = function (data, options) {
     dirs.push(path.join(__dirname, '../../../app/views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
     
     if (options.resolve_filepath === true) {
-      console.log('resolving paths', { options, viewname, dirs, });
       return findValidViewFromPaths(viewname, dirs);
     } else {
-      console.log('not resolving filepath', { options, viewname, fileext, dirs, });
       return findValidViewFromPaths(`${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`, dirs)
         .then(filePath => Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath))
         .spread((filestr, filename) => {
