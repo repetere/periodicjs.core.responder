@@ -37,6 +37,7 @@ var findValidViewFromPaths = function (_default, dirs = []) {
  * @param  {Function} cb      Callback function
  */
 const _RENDER = function (data, options) {
+  // console.log('__render', { data, options },'this',this);
   try {
     let { themename, viewname, extname, fileext, } = ['themename', 'viewname', 'extname', 'fileext', ].reduce((result, key) => {
       result[key] = options[key] || this[key];
@@ -44,16 +45,19 @@ const _RENDER = function (data, options) {
     }, {});
     if (typeof viewname !== 'string') throw new TypeError('viewname must be specified in order to render template');
     let dirs = [];
-    //fallback view
-    dirs.push(path.join(options.dirname, `${viewname.replace(viewname.split('/')[0], 'default')}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
     if (options.dirname) {
+      //fallback view
+      dirs.push(path.join(options.dirname, `${viewname.replace(viewname.split('/')[0], 'default')}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
       if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`)));
       else dirs.push(path.join(options.dirname, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
       
     }
-    if (typeof themename === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../content/themes', themename, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
-    if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
-    dirs.push(path.join(__dirname, '../../../app/views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
+    if (typeof themename === 'string' && typeof fileext === 'string') {
+      dirs.push(path.join(__dirname, '../../../../../node_modules', themename, 'views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
+      dirs.push(path.join(__dirname, '../../../../../content/container', themename, 'views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
+    }
+    if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(__dirname, '../../../../', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
+    dirs.push(path.join(__dirname, '../../../../../app/views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
     
     if (options.resolve_filepath === true) {
       return findValidViewFromPaths(viewname, dirs);
@@ -109,7 +113,7 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
    * @param {string} [options.viewname] Defines a default view name that should be used in rendering
    * @param {string} [options.fileext=".ejs"] Defines the default extension name of the template file
    */
-  constructor (options = {}) {
+  constructor(options = {}) {
     super(options);
     this.engine = (options.engine && typeof options.engine.render === 'function') ? options.engine : ejs;
     this.engine_configuration = options.engine_configuration;
