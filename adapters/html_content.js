@@ -151,7 +151,12 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
         options = {};
       }
       if (options.req && options.res) {
-        data.flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+        data.flash_messages = {};
+        try {
+          data.flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+        } catch (e) {
+          console.log('flash failed');
+        }
         return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true, }))
           .then(filepath => Promisie.promisify(options.res.render, options.res)(filepath, data))
           .then(rendered => {
@@ -193,7 +198,12 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
       options = {};
     }
     if (options.req && options.res) {
-      let flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+      let flash_messages = {};
+      try {
+        flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+      } catch (e) {
+        console.log('flash failed');
+      }
       if (options.dirname && this.custom_error_path) options.dirname = (Array.isArray(options.dirname)) ? options.dirname.concat(this.custom_error_path) : [options.dirname, ].concat(this.custom_error_path);
       else if (!options.dirname && this.custom_error_path) options.dirname = this.custom_error_path;
       return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true, }))
