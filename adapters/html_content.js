@@ -25,10 +25,10 @@ var findValidViewFromPaths = function(_default, dirs = []) {
   if (!dirs.length) return Promisie.resolve(_default);
   dirs.reverse(); // use the specific routes first, fallback to the default route
   return Promisie.retry(() => {
-      let filePath = dirs.shift();
-      return fs.statAsync(filePath)
+    let filePath = dirs.shift();
+    return fs.statAsync(filePath)
         .then(() => filePath, e => Promise.reject(e));
-    }, { times: dirs.length, timeout: 0, })
+  }, { times: dirs.length, timeout: 0, })
     .then(fp => fp)
     .catch(() => _default);
 };
@@ -68,13 +68,15 @@ const _RENDER = function(data, options) {
     }
     if (typeof extname === 'string' && typeof fileext === 'string') dirs.push(path.join(app_prefix_path, 'node_modules', extname, 'views', `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
     dirs.push(path.join(app_prefix_path, 'app/views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
-
     if (options.resolve_filepath === true) {
       return findValidViewFromPaths(viewname, dirs);
     } else {
       return findValidViewFromPaths(`${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`, dirs)
-        .then(filePath => Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath))
-        .spread((filestr, filename) => {
+        .then(filePath => {          
+          return Promisie.all(fs.readFileAsync(filePath, 'utf8'), filePath);
+        })
+        .then(result => {
+          let [filestr, filename, ] = result;
           filestr = filestr.toString();
           return Promisie.resolve(this.engine.render(filestr, data, Object.assign({ filename, }, options.engine_configuration || this.engine_configuration)));
         })
@@ -124,16 +126,16 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
    * @param {string} [options.fileext=".ejs"] Defines the default extension name of the template file
    */
   constructor(options = {}) {
-      super(options);
-      this.engine = (options.engine && typeof options.engine.render === 'function') ? options.engine : ejs;
-      this.engine_configuration = options.engine_configuration;
-      this.extname = options.extname;
-      this.themename = options.themename || 'periodicjs.theme.default';
-      this.viewname = options.viewname;
-      this.fileext = options.fileext || '.ejs';
-      this.locals = (options.locals && typeof options.locals === 'object') ? options.locals : {};
-      this.custom_error_path = options.custom_error_path;
-    }
+    super(options);
+    this.engine = (options.engine && typeof options.engine.render === 'function') ? options.engine : ejs;
+    this.engine_configuration = options.engine_configuration;
+    this.extname = options.extname;
+    this.themename = options.themename || 'periodicjs.theme.default';
+    this.viewname = options.viewname;
+    this.fileext = options.fileext || '.ejs';
+    this.locals = (options.locals && typeof options.locals === 'object') ? options.locals : {};
+    this.custom_error_path = options.custom_error_path;
+  }
     /**
      * Renders HTML from provided data and template
      * @param  {Object}  data    Data that is passed to render template
@@ -146,18 +148,18 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
      * @return {Object}          Returns a Promise if cb arguement is not provided
      */
   render(data, options = {}, cb = false) {
-      if (typeof options === 'function') {
-        cb = options;
-        options = {};
-      }
-      if (options.req && options.res) {
-        data.flash_messages = {};
-        try {
+    if (typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
+    if (options.req && options.res) {
+      data.flash_messages = {};
+      try {
           data.flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
         } catch (e) {
           console.log('flash failed');
         }
-        return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true, }))
+      return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true, }))
           .then(filepath => Promisie.promisify(options.res.render, options.res)(filepath, data))
           .then(rendered => {
             if (typeof cb === 'function') cb(null, rendered);
@@ -168,10 +170,10 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
             }
           })
           .catch(err => this.error(err, options, cb));
-      } else {
-        options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
-        options.sync = true;
-        return super.render(Object.assign({ flash_messages: {}, }, this.locals, data), options)
+    } else {
+      options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
+      options.sync = true;
+      return super.render(Object.assign({ flash_messages: {}, }, this.locals, data), options)
           .then(result => {
             if (typeof cb === 'function') cb(null, result);
             else return result;
@@ -179,8 +181,8 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
             if (typeof cb === 'function') cb(e);
             else return Promisie.reject(e);
           });
-      }
     }
+  }
     /**
      * Renders error view from template
      * @param  {*}  err    Any error data that should be passed to template
