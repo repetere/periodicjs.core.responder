@@ -56,11 +56,15 @@ const _RENDER = function(data, options) {
     if (typeof viewname !== 'string') throw new TypeError('viewname must be specified in order to render template');
     let dirs = [];
     if (options.dirname) {
-      //fallback view
-      dirs.push(path.join(options.dirname, `${viewname.replace(viewname.split('/')[0], 'default')}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
-      if (Array.isArray(options.dirname)) options.dirname.forEach(dir => dirs.push(path.join(dir, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`)));
-      else dirs.push(path.join(options.dirname, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
-
+      if (Array.isArray(options.dirname)) {
+        options.dirname.forEach(dir => {
+          dirs.push(path.join(dir, `${viewname.replace(viewname.split('/')[0], 'default')}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
+          dirs.push(path.join(dir, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
+        });
+      } else {
+        dirs.push(path.join(options.dirname, `${viewname.replace(viewname.split('/')[0], 'default')}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
+        dirs.push(path.join(options.dirname, `${ viewname }${ (/^\./.test(fileext)) ? fileext : '.' + fileext }`));
+      }
     }
     if (typeof themename === 'string' && typeof fileext === 'string') {
       dirs.push(path.join(app_prefix_path, 'node_modules', themename, 'views', `${viewname}${(/^\./.test(fileext)) ? fileext : '.' + fileext}`));
@@ -155,32 +159,32 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
     if (options.req && options.res) {
       data.flash_messages = {};
       try {
-          data.flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
-        } catch (e) {
-          console.log('flash failed');
-        }
+        data.flash_messages = (typeof options.req.flash === 'function') ? options.req.flash() : {};
+      } catch (e) {
+        console.log('flash failed');
+      }
       return _RENDER.call(this, {}, Object.assign(options, { resolve_filepath: true, }))
-          .then(filepath => Promisie.promisify(options.res.render, options.res)(filepath, data))
-          .then(rendered => {
-            if (typeof cb === 'function') cb(null, rendered);
-            else if (options.skip_response && typeof cb !== 'function') return Promisie.resolve(rendered);
-            else {
-              options.res.status(200).send(rendered);
-              return Promisie.resolve(rendered);
-            }
-          })
-          .catch(err => this.error(err, options, cb));
+        .then(filepath => Promisie.promisify(options.res.render, options.res)(filepath, data))
+        .then(rendered => {
+          if (typeof cb === 'function') cb(null, rendered);
+          else if (options.skip_response && typeof cb !== 'function') return Promisie.resolve(rendered);
+          else {
+            options.res.status(200).send(rendered);
+            return Promisie.resolve(rendered);
+          }
+        })
+        .catch(err => this.error(err, options, cb));
     } else {
       options.formatRender = (typeof options.formatRender === 'function') ? options.formatRender : _RENDER.bind(this);
       options.sync = true;
       return super.render(Object.assign({ flash_messages: {}, }, this.locals, data), options)
-          .then(result => {
-            if (typeof cb === 'function') cb(null, result);
-            else return result;
-          }, e => {
-            if (typeof cb === 'function') cb(e);
-            else return Promisie.reject(e);
-          });
+        .then(result => {
+          if (typeof cb === 'function') cb(null, result);
+          else return result;
+        }, e => {
+          if (typeof cb === 'function') cb(e);
+          else return Promisie.reject(e);
+        });
     }
   }
     /**
