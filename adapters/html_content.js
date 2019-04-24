@@ -21,7 +21,7 @@ try {
  * @param  {string[]}  [dirs=[]]    File paths to check for validity (file exists)
  * @return {Object}         Returns a Promise which resolves with a file path or the default value
  */
-var findValidViewFromPaths = function(_default, dirs = []) {
+var findValidViewFromPaths = function (_default, dirs = []) {
   if (!dirs.length) return Promisie.resolve(_default);
   dirs.reverse(); // use the specific routes first, fallback to the default route
   return Promisie.retry(() => {
@@ -82,6 +82,7 @@ const _RENDER = function(data, options) {
         .then(result => {
           let [filestr, filename, ] = result;
           filestr = filestr.toString();
+          if (fileext !== '.ejs') return Promisie.resolve(this.engine.renderFile(filename, data));
           return Promisie.resolve(this.engine.render(filestr, data, Object.assign({ filename, }, options.engine_configuration || this.engine_configuration)));
         })
         .catch(e => Promisie.reject(e));
@@ -131,7 +132,13 @@ const HTML_ADAPTER = class HTML_Adapter extends JSON_Adapter {
    */
   constructor(options = {}) {
     super(options);
+    // console.log('HTML_ADAPTER', { options })
+    // if(options.themename && !options.engine) throw new Error('test theme setting')
+    // Object.defineProperty(this, 'engine', {
+    //   writable: false,
+    // });
     this.engine = (options.engine && typeof options.engine.render === 'function') ? options.engine : ejs;
+    // console.log('this.engine ', this.engine);
     this.engine_configuration = options.engine_configuration;
     this.extname = options.extname;
     this.themename = options.themename || 'periodicjs.theme.default';
